@@ -146,6 +146,7 @@ namespace Unity.Tiny.GLFW
 #endif
                 return;
             }
+
             double newFrameTime = GLFWNativeCalls.time();
             var timeData = env.StepWallRealtimeFrame(newFrameTime - frameTime);
             World.SetTime(timeData);
@@ -178,6 +179,12 @@ namespace Unity.Tiny.GLFW
 
         [DllImport("lib_unity_tiny_glfw", EntryPoint = "getWindowFrameSize_glfw")]
         public static extern void getWindowFrameSize(out int left, out int top, out int right, out int bottom);
+        
+        [DllImport("lib_unity_tiny_glfw", EntryPoint = "get_got_focus_glfw")]
+        public static extern int getWindowGotFocus();
+
+        [DllImport("lib_unity_tiny_glfw", EntryPoint = "get_lost_focus_glfw")]
+        public static extern int getWindowLostFocus();      
 
         [DllImport("lib_unity_tiny_glfw", EntryPoint = "shutdown_glfw")]
         public static extern void shutdown(int exitCode);
@@ -206,6 +213,9 @@ namespace Unity.Tiny.GLFW
 
         [DllImport("lib_unity_tiny_glfw", EntryPoint = "init_glfw_input")]
         public static extern bool init_input();
+
+        [DllImport("lib_unity_tiny_glfw", EntryPoint = "set_mouse_mode")]
+        public static extern void setMouseMode(int mode);
 
         [DllImport("lib_unity_tiny_glfw", EntryPoint = "reset_glfw_input")]
         public static extern void resetStreams();

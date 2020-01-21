@@ -21,6 +21,8 @@
 static GLFWwindow* mainWindow = 0;
 static bool shouldClose = false;
 static bool initialized = false;
+static bool lostFocus = false;
+static bool gotFocus = false;
 
 // input
 static std::vector<int> mouse_pos_stream;
@@ -29,6 +31,8 @@ static std::vector<int> key_stream;
 
 static int windowW = 0;
 static int windowH = 0;
+
+static int mouseCursorMode = GLFW_CURSOR_NORMAL;
 
 // callbacks
 static void
@@ -46,12 +50,20 @@ window_close_callback(GLFWwindow* window)
 }
 
 static void
+window_focus_callback(GLFWwindow* window, int focused)
+{
+    lostFocus = !focused;
+    gotFocus = focused;
+}
+
+static void
 cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 {
     //printf ( "GLFW C mouse pos %f, %f\n", (float)xpos, (float)ypos);
     mouse_pos_stream.push_back((int)xpos);
     mouse_pos_stream.push_back(windowH - 1 - (int)ypos);
 }
+
 
 static void
 mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
@@ -122,8 +134,9 @@ create_window_glfw(int width, int height)
     windowH = height;
 
     glfwSetWindowCloseCallback(mainWindow, window_close_callback);
-    //glfwSetWindowUserPointer(mainWindow, this);
     glfwSetWindowSizeCallback(mainWindow, window_size_callback);
+
+    glfwSetInputMode(mainWindow, GLFW_CURSOR, mouseCursorMode);
 
     return true;
 }
@@ -227,6 +240,28 @@ resize_glfw(int width, int height)
     windowH = height;
 }
 
+DOTS_EXPORT(int)
+get_lost_focus_glfw()
+{
+    if (lostFocus)
+    {
+        lostFocus = false;
+        return 1;
+    }
+    return 0;
+}
+    
+DOTS_EXPORT(int)
+get_got_focus_glfw()
+{
+    if (gotFocus)
+    {
+        gotFocus = false;
+        return 1;
+    }
+    return 0;
+}
+    
 DOTS_EXPORT(bool)
 messagePump_glfw()
 {
@@ -253,6 +288,7 @@ init_glfw_input()
     glfwSetKeyCallback(mainWindow, key_callback);
     glfwSetCursorPosCallback(mainWindow, cursor_position_callback);
     glfwSetMouseButtonCallback(mainWindow, mouse_button_callback);
+    glfwSetWindowFocusCallback(mainWindow, window_focus_callback);
     return true;
 }
 
@@ -262,6 +298,15 @@ reset_glfw_input()
     mouse_pos_stream.clear();
     mouse_button_stream.clear();
     key_stream.clear();
+}
+
+DOTS_EXPORT(void)
+set_mouse_mode(int mode)
+{
+    mouseCursorMode = mode;
+
+    if (mainWindow)
+        glfwSetInputMode(mainWindow, GLFW_CURSOR, mode);
 }
 
 DOTS_EXPORT(const int *)
