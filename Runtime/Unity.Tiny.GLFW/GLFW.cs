@@ -1,9 +1,12 @@
 using System;
+using System.Runtime.CompilerServices;
 using Unity.Entities;
 using System.Runtime.InteropServices;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Tiny;
+
+[assembly:InternalsVisibleTo("Unity.Tiny.Input.GLFW")]
 
 namespace Unity.Tiny.GLFW
 {
@@ -26,6 +29,21 @@ namespace Unity.Tiny.GLFW
                 return IntPtr.Zero;
             return GLFWNativeCalls.getPlatformWindowHandle();
         }
+
+#if UNITY_MACOSX
+        protected IntPtr macMetalLayer;
+
+        public unsafe IntPtr GetMacMetalLayerHandle()
+        {
+            if (macMetalLayer == IntPtr.Zero)
+            {
+                var nwh = GetPlatformWindowHandle();
+                if (!GLFWNativeCalls.create_metal_layer_for_window(nwh, out macMetalLayer))
+                    macMetalLayer = IntPtr.Zero;
+            }
+            return macMetalLayer;
+        }
+#endif
 
         public override void DebugReadbackImage(out int w, out int h, out NativeArray<byte> pixels)
         {
@@ -80,6 +98,7 @@ namespace Unity.Tiny.GLFW
             config.height = winh;
             config.framebufferWidth = winw;
             config.framebufferHeight = winh;
+            config.screenDpiScale = 1.0f;
             env.SetConfigData(config);
 
             frameTime = GLFWNativeCalls.time();
@@ -154,7 +173,7 @@ namespace Unity.Tiny.GLFW
         }
     }
 
-    public static class GLFWNativeCalls
+    internal static class GLFWNativeCalls
     {
         [DllImport("lib_unity_tiny_glfw", EntryPoint = "init_glfw")]
         [return: MarshalAs(UnmanagedType.I1)]
@@ -222,6 +241,12 @@ namespace Unity.Tiny.GLFW
 
         [DllImport("lib_unity_tiny_glfw", EntryPoint = "glfw_get_platform_window_handle")]
         public static extern IntPtr getPlatformWindowHandle();
+
+#if UNITY_MACOSX
+        [DllImport("lib_unity_tiny_glfw", EntryPoint = "create_metal_layer_for_window")]
+        [return: MarshalAs(UnmanagedType.I1)]
+        public static extern bool create_metal_layer_for_window(IntPtr nsWindow, out IntPtr metalLayerOut);
+#endif
     }
 
 }
