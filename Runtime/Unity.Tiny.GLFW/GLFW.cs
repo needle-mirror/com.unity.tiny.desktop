@@ -133,11 +133,6 @@ namespace Unity.Tiny.GLFW
             if (!windowOpen)
                 return;
 
-#if UNITY_DOTSPLAYER
-            Unity.Profiling.Profiler.FrameEnd();
-            Unity.Profiling.Profiler.FrameBegin();
-#endif
-
             var env = World.TinyEnvironment();
             var config = env.GetConfigData<DisplayInfo>();
             GLFWNativeCalls.getWindowSize(out int winw, out int winh);
