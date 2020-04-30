@@ -6,7 +6,7 @@ using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Tiny;
 
-[assembly:InternalsVisibleTo("Unity.Tiny.Input.GLFW")]
+[assembly: InternalsVisibleTo("Unity.Tiny.Input.GLFW")]
 
 namespace Unity.Tiny.GLFW
 {
@@ -43,6 +43,7 @@ namespace Unity.Tiny.GLFW
             }
             return macMetalLayer;
         }
+
 #endif
 
         public override void DebugReadbackImage(out int w, out int h, out NativeArray<byte> pixels)
@@ -171,18 +172,18 @@ namespace Unity.Tiny.GLFW
     internal static class GLFWNativeCalls
     {
         [DllImport("lib_unity_tiny_glfw", EntryPoint = "init_glfw")]
-        [return: MarshalAs(UnmanagedType.I1)]
+        [return : MarshalAs(UnmanagedType.I1)]
         public static extern bool init();
 
         [DllImport("lib_unity_tiny_glfw", EntryPoint = "create_window_glfw")]
-        [return: MarshalAs(UnmanagedType.I1)]
+        [return : MarshalAs(UnmanagedType.I1)]
         public static extern bool create_window(int width, int height);
 
         [DllImport("lib_unity_tiny_glfw", EntryPoint = "show_window_glfw")]
         public static extern void show_window(int show);
 
         [DllImport("lib_unity_tiny_glfw", EntryPoint = "destroy_window_glfw")]
-        [return: MarshalAs(UnmanagedType.I1)]
+        [return : MarshalAs(UnmanagedType.I1)]
         public static extern bool destroy_window();
 
         [DllImport("lib_unity_tiny_glfw", EntryPoint = "getWindowSize_glfw")]
@@ -193,12 +194,12 @@ namespace Unity.Tiny.GLFW
 
         [DllImport("lib_unity_tiny_glfw", EntryPoint = "getWindowFrameSize_glfw")]
         public static extern void getWindowFrameSize(out int left, out int top, out int right, out int bottom);
-        
+
         [DllImport("lib_unity_tiny_glfw", EntryPoint = "get_got_focus_glfw")]
         public static extern int getWindowGotFocus();
 
         [DllImport("lib_unity_tiny_glfw", EntryPoint = "get_lost_focus_glfw")]
-        public static extern int getWindowLostFocus();      
+        public static extern int getWindowLostFocus();
 
         [DllImport("lib_unity_tiny_glfw", EntryPoint = "shutdown_glfw")]
         public static extern void shutdown(int exitCode);
@@ -207,7 +208,7 @@ namespace Unity.Tiny.GLFW
         public static extern void resize(int width, int height);
 
         [DllImport("lib_unity_tiny_glfw", EntryPoint = "messagePump_glfw")]
-        [return: MarshalAs(UnmanagedType.I1)]
+        [return : MarshalAs(UnmanagedType.I1)]
         public static extern bool messagePump();
 
         [DllImport("lib_unity_tiny_glfw", EntryPoint = "time_glfw")]
@@ -225,6 +226,9 @@ namespace Unity.Tiny.GLFW
         [DllImport("lib_unity_tiny_glfw", EntryPoint = "get_mouse_button_stream_glfw_input")]
         public static extern unsafe int * getMouseButtonStream(ref int len);
 
+        [DllImport("lib_unity_tiny_glfw", EntryPoint = "get_mouse_scroll_stream_glfw_input")]
+        public static extern unsafe float * getMouseScrollStream(ref int len);
+
         [DllImport("lib_unity_tiny_glfw", EntryPoint = "init_glfw_input")]
         public static extern bool init_input();
 
@@ -239,9 +243,8 @@ namespace Unity.Tiny.GLFW
 
 #if UNITY_MACOSX
         [DllImport("lib_unity_tiny_glfw", EntryPoint = "create_metal_layer_for_window")]
-        [return: MarshalAs(UnmanagedType.I1)]
+        [return : MarshalAs(UnmanagedType.I1)]
         public static extern bool create_metal_layer_for_window(IntPtr nsWindow, out IntPtr metalLayerOut);
 #endif
     }
-
 }

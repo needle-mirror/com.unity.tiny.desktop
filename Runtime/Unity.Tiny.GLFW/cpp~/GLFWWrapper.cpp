@@ -27,6 +27,7 @@ static bool gotFocus = false;
 // input
 static std::vector<int> mouse_pos_stream;
 static std::vector<int> mouse_button_stream;
+static std::vector<float> mouse_scroll_stream;
 static std::vector<int> key_stream;
 
 static int windowW = 0;
@@ -72,6 +73,13 @@ mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
     mouse_button_stream.push_back(button);
     mouse_button_stream.push_back(action);
     mouse_button_stream.push_back(mods);
+}
+
+static void
+window_scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    mouse_scroll_stream.push_back((float)xoffset);
+    mouse_scroll_stream.push_back((float)yoffset);
 }
 
 static void
@@ -289,6 +297,7 @@ init_glfw_input()
     glfwSetCursorPosCallback(mainWindow, cursor_position_callback);
     glfwSetMouseButtonCallback(mainWindow, mouse_button_callback);
     glfwSetWindowFocusCallback(mainWindow, window_focus_callback);
+    glfwSetScrollCallback(mainWindow, window_scroll_callback);
     return true;
 }
 
@@ -297,6 +306,7 @@ reset_glfw_input()
 {
     mouse_pos_stream.clear();
     mouse_button_stream.clear();
+    mouse_scroll_stream.clear();
     key_stream.clear();
 }
 
@@ -321,6 +331,12 @@ get_mouse_button_stream_glfw_input(int *len)
 {
     *len = (int)mouse_button_stream.size();
     return mouse_button_stream.data();
+}
+
+DOTS_EXPORT(const float *)
+get_mouse_scroll_stream_glfw_input(int *len) {
+    *len = (int)mouse_scroll_stream.size();
+    return mouse_scroll_stream.data();
 }
 
 DOTS_EXPORT(const int *)

@@ -28,9 +28,9 @@ namespace Unity.Tiny.GLFW
         {
             if (mouseCursorModeSaved != mouseCursorModeActive)
             {
-                GLFWNativeCalls.setMouseMode(mouseCursorModeSaved);     
+                GLFWNativeCalls.setMouseMode(mouseCursorModeSaved);
                 mouseCursorModeActive = mouseCursorModeSaved;
-            }   
+            }
         }
 
         public override void SetMouseMode(PointerModeType type)
@@ -59,7 +59,7 @@ namespace Unity.Tiny.GLFW
             initialized = GLFWNativeCalls.init_input();
             GLFWNativeCalls.resetStreams();
             EnterMouseMode();
-       }
+        }
 
         protected override void OnDestroy()
         {
@@ -80,6 +80,8 @@ namespace Unity.Tiny.GLFW
 
             m_inputState.mouseDeltaX = 0;
             m_inputState.mouseDeltaY = 0;
+            m_inputState.scrollDeltaX = 0;
+            m_inputState.scrollDeltaY = 0;
 
             unsafe
             {
@@ -120,7 +122,17 @@ namespace Unity.Tiny.GLFW
                     {
                         m_inputState.MouseDown(button);
                         EnterMouseMode();
-                    }                   
+                    }
+                }
+
+                int mouseScrollStreamLen = 0;
+                float* mouseScrollStream = GLFWNativeCalls.getMouseScrollStream(ref mouseScrollStreamLen);
+                for (int i = 0; i < mouseScrollStreamLen; i += 2)
+                {
+                    float scrollX = mouseScrollStream[i];
+                    float scrollY = mouseScrollStream[i + 1];
+                    m_inputState.scrollDeltaX = scrollX;
+                    m_inputState.scrollDeltaY = scrollY;
                 }
 
                 // position
@@ -140,14 +152,14 @@ namespace Unity.Tiny.GLFW
                             m_inputState.mouseDeltaX += nextX - m_inputState.mouseX;
                             m_inputState.mouseDeltaY += nextY - m_inputState.mouseY;
                         }
-                        
+
                         m_inputState.mouseX = nextX;
                         m_inputState.mouseY = nextY;
                         mouseInitDelta = false;
                     }
                 }
 
-                if (mouseButtonStreamLen != 0 || mousePosStreamLen != 0)
+                if (mouseButtonStreamLen != 0 || mousePosStreamLen != 0 || mouseScrollStreamLen != 0)
                     m_inputState.hasMouse = true;
             }
 
@@ -289,7 +301,7 @@ namespace Unity.Tiny.GLFW
         // actions
         private const int GLFW_RELEASE = 0;
         private const int GLFW_PRESS = 1;
-        
+
         // cursor modes
         private const int GLFW_CURSOR_NORMAL = 0x00034001;
         private const int GLFW_CURSOR_HIDDEN = 0x00034002;
