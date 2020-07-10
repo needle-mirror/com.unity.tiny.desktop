@@ -120,7 +120,7 @@ namespace Unity.Tiny.GLFW
                 windowOpen = false;
             }
 
-#if UNITY_DOTSPLAYER
+#if UNITY_DOTSRUNTIME
             if (initialized)
             {
                 GLFWNativeCalls.shutdown(0);
@@ -156,7 +156,7 @@ namespace Unity.Tiny.GLFW
             }
             if (!GLFWNativeCalls.messagePump())
             {
-#if UNITY_DOTSPLAYER
+#if UNITY_DOTSRUNTIME
                 World.QuitUpdate = true;
 #endif
                 return;

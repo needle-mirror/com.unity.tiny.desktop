@@ -1,21 +1,23 @@
 {
   "name": "com.unity.tiny.desktop",
   "displayName": "Project Tiny for Desktop",
-  "version": "0.26.0-preview.14",
-  "unity": "2019.3",
-  "unityRelease": "12f1",
+  "version": "0.28.0-preview.40",
+  "unity": "2020.1",
+  "unityRelease": "0b15",
   "description": "This package enables desktop platform support for Project Tiny",
   "keywords": [
     "tiny"
   ],
   "dependencies": {
-    "com.unity.dots.runtime": "0.26.0-preview.14",
-    "com.unity.tiny": "0.26.0-preview.14"
+    "com.unity.dots.runtime": "0.28.0-preview.40",
+    "com.unity.tiny": "0.28.0-preview.40"
+  },
+  "upmCi": {
+    "footprint": "2286c1c54e3297b2f0f982162db94ef5d142c1e0"
   },
   "repository": {
-    "footprint": "db4bf4e9eb16e9a6e852f08ebcd1330e6914646f",
-    "type": "git",
     "url": "https://github.com/Unity-Technologies/dots.git",
-    "revision": "fa21b69a5bde87e0be1ae2f6b4f914bd30f2b77c"
+    "type": "git",
+    "revision": "ca4add2df8479b9544e15b5920d46ff6aef3bf23"
   }
 }
