@@ -14,7 +14,6 @@ namespace Unity.Tiny.GLFW
     public class GLFWWindowSystem : WindowSystem
     {
         protected bool initialized;
-        protected double frameTime;
         protected bool windowOpen;
 
         public GLFWWindowSystem()
@@ -102,8 +101,6 @@ namespace Unity.Tiny.GLFW
             config.screenDpiScale = 1.0f;
             env.SetConfigData(config);
 
-            frameTime = GLFWNativeCalls.time();
-
             windowOpen = true;
         }
 
@@ -161,11 +158,6 @@ namespace Unity.Tiny.GLFW
 #endif
                 return;
             }
-
-            double newFrameTime = GLFWNativeCalls.time();
-            var timeData = env.StepWallRealtimeFrame(newFrameTime - frameTime);
-            World.SetTime(timeData);
-            frameTime = newFrameTime;
         }
     }
 
@@ -210,9 +202,6 @@ namespace Unity.Tiny.GLFW
         [DllImport("lib_unity_tiny_glfw", EntryPoint = "messagePump_glfw")]
         [return : MarshalAs(UnmanagedType.I1)]
         public static extern bool messagePump();
-
-        [DllImport("lib_unity_tiny_glfw", EntryPoint = "time_glfw")]
-        public static extern double time();
 
         [DllImport("lib_unity_tiny_glfw", EntryPoint = "getwindow_glfw")]
         public static extern unsafe void *getWindow();
