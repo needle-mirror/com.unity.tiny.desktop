@@ -3,8 +3,7 @@ using System.Runtime.CompilerServices;
 using Unity.Entities;
 using System.Runtime.InteropServices;
 using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
-using Unity.Tiny;
+using Unity.Platforms;
 
 [assembly: InternalsVisibleTo("Unity.Tiny.Input.GLFW")]
 
@@ -52,9 +51,11 @@ namespace Unity.Tiny.GLFW
 
         protected override void OnCreate()
         {
+            base.OnCreate();
+
             try
             {
-                initialized = GLFWNativeCalls.init();
+                initialized = GLFWNativeCalls.init() != 0 ? true : false;
             }
             catch (Exception)
             {
@@ -70,36 +71,34 @@ namespace Unity.Tiny.GLFW
                 throw new InvalidOperationException("GLFW wasn't initialized");
 
             // setup window
-            var env = World.TinyEnvironment();
-            var config = env.GetConfigData<DisplayInfo>();
+            var displayInfo = GetSingleton<DisplayInfo>();
 
-            if (config.width <= 0 || config.height <= 0)
+            if (displayInfo.width <= 0 || displayInfo.height <= 0)
             {
-                Debug.LogError($"GLFW: configuration entity DisplayInfo has width or height <= 0! ({config.width} {config.height}).  Is it being created properly?");
+                Debug.LogError($"GLFW: configuration entity DisplayInfo has width or height <= 0! ({displayInfo.width} {displayInfo.height}).  Is it being created properly?");
                 throw new InvalidOperationException("Bad DisplayInfo, window can't be opened");
             }
 
             // no-op if the window is already created
-            var ok = GLFWNativeCalls.create_window(config.width, config.height);
-            if (!ok)
+            if (GLFWNativeCalls.create_window(displayInfo.width, displayInfo.height) == 0)
                 throw new InvalidOperationException("Failed to Open GLFW Window!");
             GLFWNativeCalls.show_window(1);
 
             GLFWNativeCalls.getWindowSize(out int winw, out int winh);
             GLFWNativeCalls.getScreenSize(out int sw, out int sh);
-            config.focused = true;
-            config.visible = true;
-            config.orientation = winw >= winh ? ScreenOrientation.Landscape : ScreenOrientation.Portrait;
-            config.frameWidth = winw;
-            config.frameHeight = winh;
-            config.screenWidth = sw;
-            config.screenHeight = sh;
-            config.width = winw;
-            config.height = winh;
-            config.framebufferWidth = winw;
-            config.framebufferHeight = winh;
-            config.screenDpiScale = 1.0f;
-            env.SetConfigData(config);
+            displayInfo.focused = true;
+            displayInfo.visible = true;
+            displayInfo.orientation = winw >= winh ? ScreenOrientation.Landscape : ScreenOrientation.Portrait;
+            displayInfo.frameWidth = winw;
+            displayInfo.frameHeight = winh;
+            displayInfo.screenWidth = sw;
+            displayInfo.screenHeight = sh;
+            displayInfo.width = winw;
+            displayInfo.height = winh;
+            displayInfo.framebufferWidth = winw;
+            displayInfo.framebufferHeight = winh;
+            displayInfo.screenDpiScale = 1.0f;
+            SetSingleton(displayInfo);
 
             windowOpen = true;
         }
@@ -109,21 +108,17 @@ namespace Unity.Tiny.GLFW
             // close window
             if (windowOpen)
             {
-#if UNITY_EDITOR
-                GLFWNativeCalls.show_window(0);
-#else
                 GLFWNativeCalls.destroy_window();
-#endif
                 windowOpen = false;
             }
 
-#if UNITY_DOTSRUNTIME
             if (initialized)
             {
                 GLFWNativeCalls.shutdown(0);
                 initialized = false;
             }
-#endif
+
+            base.OnDestroy();
         }
 
         protected override void OnUpdate()
@@ -131,31 +126,28 @@ namespace Unity.Tiny.GLFW
             if (!windowOpen)
                 return;
 
-            var env = World.TinyEnvironment();
-            var config = env.GetConfigData<DisplayInfo>();
+            var displayInfo = GetSingleton<DisplayInfo>();
             GLFWNativeCalls.getWindowSize(out int winw, out int winh);
-            if (winw != config.width || winh != config.height)
+            if (winw != displayInfo.width || winh != displayInfo.height)
             {
-                if (config.autoSizeToFrame)
+                if (displayInfo.autoSizeToFrame)
                 {
-                    config.width = winw;
-                    config.height = winh;
-                    config.frameWidth = winw;
-                    config.frameHeight = winh;
-                    config.framebufferWidth = winw;
-                    config.framebufferHeight = winh;
-                    env.SetConfigData(config);
+                    displayInfo.width = winw;
+                    displayInfo.height = winh;
+                    displayInfo.frameWidth = winw;
+                    displayInfo.frameHeight = winh;
+                    displayInfo.framebufferWidth = winw;
+                    displayInfo.framebufferHeight = winh;
+                    SetSingleton(displayInfo);
                 }
                 else
                 {
-                    GLFWNativeCalls.resize(config.width, config.height);
+                    GLFWNativeCalls.resize(displayInfo.width, displayInfo.height);
                 }
             }
-            if (!GLFWNativeCalls.messagePump())
+            if (GLFWNativeCalls.getWindowShouldClose() == 1)
             {
-#if UNITY_DOTSRUNTIME
                 World.QuitUpdate = true;
-#endif
                 return;
             }
         }
@@ -164,19 +156,16 @@ namespace Unity.Tiny.GLFW
     internal static class GLFWNativeCalls
     {
         [DllImport("lib_unity_tiny_glfw", EntryPoint = "init_glfw")]
-        [return : MarshalAs(UnmanagedType.I1)]
-        public static extern bool init();
+        public static extern int init();
 
         [DllImport("lib_unity_tiny_glfw", EntryPoint = "create_window_glfw")]
-        [return : MarshalAs(UnmanagedType.I1)]
-        public static extern bool create_window(int width, int height);
+        public static extern int create_window(int width, int height);
 
         [DllImport("lib_unity_tiny_glfw", EntryPoint = "show_window_glfw")]
         public static extern void show_window(int show);
 
         [DllImport("lib_unity_tiny_glfw", EntryPoint = "destroy_window_glfw")]
-        [return : MarshalAs(UnmanagedType.I1)]
-        public static extern bool destroy_window();
+        public static extern void destroy_window();
 
         [DllImport("lib_unity_tiny_glfw", EntryPoint = "getWindowSize_glfw")]
         public static extern void getWindowSize(out int width, out int height);
@@ -199,9 +188,8 @@ namespace Unity.Tiny.GLFW
         [DllImport("lib_unity_tiny_glfw", EntryPoint = "resize_glfw")]
         public static extern void resize(int width, int height);
 
-        [DllImport("lib_unity_tiny_glfw", EntryPoint = "messagePump_glfw")]
-        [return : MarshalAs(UnmanagedType.I1)]
-        public static extern bool messagePump();
+        [DllImport("lib_unity_tiny_glfw", EntryPoint = "get_should_close_glfw")]
+        public static extern int getWindowShouldClose();
 
         [DllImport("lib_unity_tiny_glfw", EntryPoint = "getwindow_glfw")]
         public static extern unsafe void *getWindow();
@@ -224,8 +212,11 @@ namespace Unity.Tiny.GLFW
         [DllImport("lib_unity_tiny_glfw", EntryPoint = "set_mouse_mode")]
         public static extern void setMouseMode(int mode);
 
-        [DllImport("lib_unity_tiny_glfw", EntryPoint = "reset_glfw_input")]
-        public static extern void resetStreams();
+        [DllImport("lib_unity_tiny_glfw", EntryPoint = "lock_glfw_input")]
+        public static extern unsafe void lockStreams();
+
+        [DllImport("lib_unity_tiny_glfw", EntryPoint = "unlock_and_reset_glfw_input")]
+        public static extern void unlockAndResetStreams();
 
         [DllImport("lib_unity_tiny_glfw", EntryPoint = "glfw_get_platform_window_handle")]
         public static extern IntPtr getPlatformWindowHandle();

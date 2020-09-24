@@ -3,10 +3,11 @@
     "references": [
       "Unity.Entities",
       "Unity.Mathematics",
-      "Unity.Tiny.Core"
+      "Unity.Tiny.Core",
+      "Unity.Platforms.Common"
     ],
     "optionalUnityReferences": [],
     "excludePlatforms": [ "WebGL", "Android", "IOS" ],
     "allowUnsafeCode": true,
-    "defineConstraints": []
+    "defineConstraints": ["UNITY_DOTSRUNTIME"]
 }

@@ -6,16 +6,16 @@ using Bee.Core;
 using Bee.Stevedore;
 using Bee.Toolchain.Xcode;
 using NiceIO;
-using Unity.BuildSystem.NativeProgramSupport;
+using Bee.NativeProgramSupport;
 using Bee.Toolchain.GNU;
+using Bee.Core.Stevedore;
 
 partial class External
 {
     public static NativeProgram SetupGLFW()
     {
         var glfwArtifacts = new StevedoreArtifact("glfw");
-        Backend.Current.Register(glfwArtifacts);
-        var glfwRoot = glfwArtifacts.Path;
+        var glfwRoot = glfwArtifacts.Path.ResolveWithFileSystem();
 
         var glfwLib = new NativeProgram("libglfw")
         {

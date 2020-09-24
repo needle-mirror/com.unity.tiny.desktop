@@ -57,7 +57,7 @@ namespace Unity.Tiny.GLFW
 
             // must init after window
             initialized = GLFWNativeCalls.init_input();
-            GLFWNativeCalls.resetStreams();
+            GLFWNativeCalls.unlockAndResetStreams();
             EnterMouseMode();
         }
 
@@ -72,6 +72,8 @@ namespace Unity.Tiny.GLFW
                 return;
 
             base.OnUpdate(); // advances input state one frame
+
+            GLFWNativeCalls.lockStreams();
 
             if (GLFWNativeCalls.getWindowLostFocus() != 0)
             {
@@ -163,7 +165,7 @@ namespace Unity.Tiny.GLFW
                     m_inputState.hasMouse = true;
             }
 
-            GLFWNativeCalls.resetStreams();
+            GLFWNativeCalls.unlockAndResetStreams();
         }
 
         // GLFW key map

@@ -2,7 +2,8 @@ using System.Collections.Generic;
 using Bee.Toolchain.GNU;
 using Bee.Toolchain.Xcode;
 using JetBrains.Annotations;
-using Unity.BuildSystem.NativeProgramSupport;
+using Bee.NativeProgramSupport;
+using Bee.Core;
 
 [UsedImplicitly]
 class CustomizerForTinyGLFW : AsmDefCSharpProgramCustomizer
