@@ -4,6 +4,12 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.32.0] - 2020-11-13
+
+### Changed
+
+* Update minimum editor version to 2020.1.2f1
+
 ## [0.31.0] - 2020-09-24
 
 * Update package dependencies
